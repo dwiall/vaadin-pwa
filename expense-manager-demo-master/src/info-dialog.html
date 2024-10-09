@@ -1,0 +1,76 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/vaadin-button/vaadin-button.html">
+<link rel="import" href="../bower_components/vaadin-dialog/vaadin-dialog.html">
+
+<dom-module id="info-dialog">
+  <template>
+    <style>
+      a {
+        color: var(--lumo-primary-text-color);
+      }
+    </style>
+    <vaadin-dialog id="dialog" no-close-on-esc no-close-on-outside-click opened="[[open]]">
+      <template>
+        <h2>Welcome to Expense Manager</h2>
+
+        <p>
+          This is a sample Progressive Web App.
+        </p>
+        <p>
+          Try adding it to your home screen and using it offline.
+        </p>
+        <p>
+          This demo is built using <a tabindex="-1" href="https://www.polymer-project.org" target="_blank" rel="noopener">Polymer</a>
+          and <a tabindex="-1" href="https://vaadin.com/components" target="_blank" rel="noopener">Vaadin components</a>.
+          <br>
+          You can find the source code and fork the project on <a tabindex="-1" href="https://github.com/vaadin/expense-manager-demo" rel="noopener">GitHub</a>.
+        </p>
+
+        <div class="buttons">
+          <vaadin-button theme="primary" on-click="_close">Got it!</vaadin-button>
+        </div>
+
+      </template>
+    </vaadin-dialog>
+
+  </template>
+  <script>
+    (function() {
+      /**
+       * @memberof ExpenseManager
+       */
+      class InfoDialogElement extends ExpenseManager.ReduxMixin(Polymer.Element) {
+        static get is() {
+          return 'info-dialog';
+        }
+
+        static get properties() {
+          return {
+            /**
+             * True if the dialog is opened.
+             */
+            open: {
+              type: Boolean,
+              statePath: 'uiState.infoDialogVisible'
+            }
+          };
+        }
+
+        /**
+         * Closes the dialog.
+         */
+        _close() {
+          this.dispatch('hideInfoDialog');
+        }
+      }
+
+      customElements.define(InfoDialogElement.is, InfoDialogElement);
+
+      /**
+       * @namespace ExpenseManager
+       */
+      window.ExpenseManager = window.ExpenseManager || {};
+      ExpenseManager.InfoDialogElement = InfoDialogElement;
+    })();
+  </script>
+</dom-module>

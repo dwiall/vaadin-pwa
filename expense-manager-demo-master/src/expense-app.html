@@ -1,0 +1,58 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/vaadin-lumo-styles/color.html">
+<link rel="import" href="../bower_components/vaadin-lumo-styles/typography.html">
+<link rel="import" href="router-mixin.html">
+
+<dom-module id="expense-app">
+  <template>
+    <style include="lumo-color">
+      :host {
+        display: block;
+      }
+
+      #pages,
+      #pages > * {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+    </style>
+
+    <div id="pages">
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      /**
+       * @memberof ExpenseManager
+       * @mixes ExpenseManager.RouterMixin
+       */
+      class ExpenseAppElement extends ExpenseManager.RouterMixin(Polymer.Element) {
+        static get is() {
+          return 'expense-app';
+        }
+
+        ready() {
+          super.ready();
+
+          // Custom elements polyfill safe way to indicate an element has been upgraded.
+          this.removeAttribute('unresolved');
+
+          // Initialize the router.
+          this._initRouter(this.$.pages);
+        }
+      }
+
+      customElements.define(ExpenseAppElement.is, ExpenseAppElement);
+
+      /**
+       * @namespace ExpenseManager
+       */
+      window.ExpenseManager = window.ExpenseManager || {};
+      ExpenseManager.ExpenseAppElement = ExpenseAppElement;
+    })();
+  </script>
+</dom-module>

@@ -1,0 +1,233 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../bower_components/vaadin-lumo-styles/color.html">
+<link rel="import" href="../bower_components/vaadin-lumo-styles/sizing.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button-light.html">
+<link rel="import" href="date-helpers.html">
+<link rel="import" href="data/store.html">
+<link rel="import" href="icons.html">
+
+<dom-module id="expenses-list">
+  <template>
+    <style>
+      :host {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #add-button {
+        position: absolute;
+        height: var(--lumo-size-xl);
+        width: var(--lumo-size-xl);
+        right: 32px;
+        bottom: 32px;
+        z-index: 1;
+        background: var(--lumo-error-color);
+        color: var(--lumo-error-contrast-color);
+        box-shadow: var(--lumo-box-shadow-m);
+        border-radius: 50%;
+      }
+
+      #expenses {
+        flex: auto;
+        height: 0.001px;
+        border: 0;
+      }
+
+      vaadin-grid .status {
+        text-transform: capitalize;
+      }
+
+      vaadin-grid .status-new {
+        color: var(--lumo-error-color);
+        font-weight: 500;
+      }
+
+      vaadin-grid .status-in_progress {
+        font-weight: 500;
+        font-style: italic;
+        text-transform: capitalize;
+      }
+
+      vaadin-grid .total {
+        text-align: right;
+      }
+
+      vaadin-grid#expenses .cell.last {
+        padding-right: 24px;
+      }
+
+      vaadin-grid#expenses .numeric {
+        text-align: right;
+      }
+
+      vaadin-grid#expenses .comment {
+        text-overflow: ellipsis;
+      }
+    </style>
+
+    <vaadin-grid items="[[expenses]]" id="expenses" active-item="{{activeItem}}">
+
+      <vaadin-grid-column width="8em" frozen>
+        <template class="header">
+          <vaadin-grid-sorter path="date" direction="desc">
+            <div class="header-cell">
+              Date
+            </div>
+          </vaadin-grid-sorter>
+        </template>
+        <template>
+          [[_formatDate(item.date)]]
+        </template>
+      </vaadin-grid-column>
+
+      <vaadin-grid-column width="8em" flex-grow="2">
+        <template class="header">
+          <vaadin-grid-sorter path="merchant">
+            <div class="header-cell">
+              Merchant
+            </div>
+          </vaadin-grid-sorter>
+        </template>
+        <template>
+          [[item.merchant]]
+        </template>
+      </vaadin-grid-column>
+
+      <vaadin-grid-column width="6em">
+        <template class="header">
+          <vaadin-grid-sorter path="total" class="numeric">
+            <div class="header-cell">
+              Total
+            </div>
+          </vaadin-grid-sorter>
+        </template>
+        <template>
+          <span class="total">[[_formatTotal(item.total)]]</span>
+        </template>
+      </vaadin-grid-column>
+
+      <vaadin-grid-column width="8em">
+        <template class="header">
+          <vaadin-grid-sorter path="status">
+            <div class="header-cell">
+              Status
+            </div>
+          </vaadin-grid-sorter>
+        </template>
+        <template>
+          <span class$="status-[[item.status]] status">[[_formatStatus(item.status)]]</span>
+        </template>
+      </vaadin-grid-column>
+
+      <vaadin-grid-column width="14em" flex-grow="3">
+        <template class="header">
+          <vaadin-grid-sorter path="comment">
+            <div class="header-cell">
+              Comment
+            </div>
+          </vaadin-grid-sorter>
+        </template>
+        <template>
+          <div class="comment">[[item.comment]]</div>
+        </template>
+      </vaadin-grid-column>
+
+    </vaadin-grid>
+
+    <paper-icon-button-light on-click="_showExpenseEditor" id="add-button">
+      <button aria-label="Add expense">
+        <iron-icon icon="expense-manager:add"></iron-icon>
+      </button>
+    </paper-icon-button-light>
+
+  </template>
+  <script>
+    (function() {
+      /**
+       * @memberof ExpenseManager
+       */
+      class ExpensesListElement extends ExpenseManager.ReduxMixin(Polymer.Element) {
+        static get is() {
+          return 'expenses-list';
+        }
+
+        static get properties() {
+          return {
+            /**
+             * The list of expenses.
+             * @type {Array}
+             */
+            expenses: {
+              type: Array,
+              statePath: ExpenseManager.select.expenses
+            },
+
+            /**
+             * The selected expense object.
+             * @type {Array}
+             */
+            activeItem: {
+              observer: '_activeItemChanged'
+            }
+          };
+        }
+
+        _showExpenseEditor() {
+          this.dispatch('editExpense');
+        }
+
+        /**
+         * @param {Object|null} expense the selected expense, if any.
+         */
+        _activeItemChanged(expense) {
+          if (this.expenses && this.expenses.length > 0) { // don't trigger on init
+            this.$.expenses.selectedItems = expense ? [expense] : [];
+            this.dispatch('editExpense', expense);
+          }
+        }
+
+        /**
+         * @param {number} total an expense amount to format.
+         * @return {string} a formatted amount.
+         */
+        _formatTotal(total) {
+          if (total) {
+            return '$' + total.toFixed(2);
+          }
+        }
+
+        /**
+         * @param {string} status an expense status to format.
+         * @return {string} a formatted status.
+         */
+        _formatStatus(status) {
+          if (status) {
+            return status.replace('_', ' ');
+          }
+        }
+
+        /**
+         * @param {string} date an expense date to format.
+         * @return {string} a formatted date.
+         */
+        _formatDate(date) {
+          if (date) {
+            return window.ExpenseManager.dateHelpers.format(date);
+          }
+        }
+      }
+
+      customElements.define(ExpensesListElement.is, ExpensesListElement);
+
+      /**
+       * @namespace ExpenseManager
+       */
+      window.ExpenseManager = window.ExpenseManager || {};
+      ExpenseManager.ExpensesListElement = ExpensesListElement;
+    })();
+  </script>
+</dom-module>

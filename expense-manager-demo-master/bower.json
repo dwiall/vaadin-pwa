@@ -1,0 +1,19 @@
+{
+  "name": "expense-manager",
+  "authors": [
+    "Marcus Hellberg / Vaadin - marcus@vaadin.com"
+  ],
+  "private": true,
+  "dependencies": {
+    "polymer": "polymer/polymer#^2.0.0",
+    "vaadin-core": "^14.0.0",
+    "iron-a11y-keys": "polymerelements/iron-a11y-keys#^2.0.0",
+    "app-layout": "polymerelements/app-layout#^2.0.0",
+    "iron-media-query": "polymerelements/iron-media-query#^2.0.0",
+    "paper-icon-button": "polymerelements/paper-icon-button#^2.0.0",
+    "polymer-redux": "^1.0.3"
+  },
+  "devDependencies": {
+    "web-component-tester": "^6.0.0"
+  }
+}
